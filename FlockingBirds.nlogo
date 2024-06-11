@@ -1,14 +1,13 @@
 globals [
-  vision             ; patches
-  minimum-separation ; patches
-  max-align-turn     ; degrees
-  max-cohere-turn    ; degrees
-  max-separate-turn  ; degrees
+  vision             ;; patches
+  minimum-separation ;; patches
+  max-align-turn     ;; degrees
+  max-cohere-turn    ;; degrees
+  max-separate-turn  ;; degrees
 ]
 
 turtles-own [
-  turn-direction       ;; which fly direction at a time
-  wing-flap-direction  ;; which wing-flap direction at a time
+  turn-direction       ;; left or right
   flockmates           ;; agentset of nearby turtles
   nearest-neighbor     ;; closest one of our flockmates
 ]
@@ -18,16 +17,17 @@ to setup
   create-turtles total-birds
     [ set color yellow - 2 + random 7  ;; random shades look nice
       set size 1.5  ;; easier to see
-      set shape "bird side"
+      set-random-shape
       setxy random-xcor random-ycor
-      set flockmates no-turtles
-      set wing-flap-direction "up" ]
+      set flockmates no-turtles ]
   reset-ticks
 end
 
 to go
   apply-formation
-  ask turtles [ flock ]
+  ask turtles
+    [ flock
+      set-turn-shape ]
   ;; the following line is used to make the turtles
   ;; animate more smoothly.
   repeat 5 [ ask turtles [ fd 0.1 ] display ]
@@ -52,8 +52,7 @@ to flock  ;; turtle procedure
       ifelse distance nearest-neighbor < minimum-separation
         [ separate ]
         [ align
-          cohere ]
-      set-shape ]
+          cohere ] ]
 end
 
 to find-flockmates  ;; turtle procedure
@@ -106,15 +105,17 @@ end
 
 ;;; SHAPE
 
+to set-random-shape   ;; turtle procedure
+  ifelse (random 2) = 1
+    [ set shape "bird-left" ]
+    [ set shape "bird-right" ]
+end
+
 ;; set the shape of referenced bird
-to set-shape   ;; turtle procedure
+to set-turn-shape   ;; turtle procedure
   ifelse turn-direction = "left"
-    [ ifelse wing-flap-direction = "up"
-      [ set shape "bird-left-up" ]
-      [ set shape "bird-left-down" ] ]
-    [ ifelse wing-flap-direction = "down"
-      [ set shape "bird-right-down" ]
-      [ set shape "bird-right-up" ] ]
+    [ set shape "bird-left" ]
+    [ set shape "bird-right" ]
 end
 
 ;;; HELPER PROCEDURES
@@ -133,11 +134,11 @@ to turn-at-most [turn max-turn]  ;; turtle procedure
   ifelse abs turn > max-turn
     [ ifelse turn > 0
         [ rt max-turn
-          set-directions "right" ]
+          set turn-direction "right" ]
         [ lt max-turn
-          set-directions "left" ] ]
+          set turn-direction "left" ] ]
     [ rt turn
-      set-directions "right" ]
+      set turn-direction "right" ]
 end
 
 to set-globals [vision-val minimum-separation-val max-align-turn-val max-cohere-turn-val max-separate-turn-val]
@@ -160,28 +161,17 @@ to set-globals-random
   set-globals 20 1 20 15 10
 end
 
-;; set the turn and wing-flap directions of referenced bird
-to set-directions [turn-direction-val]  ;; turtle procedure
-  set turn-direction turn-direction-val
-
-  let new-wing-flap-direction wing-flap-direction
-  ifelse wing-flap-direction = "up"
-    [ set new-wing-flap-direction "down" ]
-    [ set new-wing-flap-direction "up" ]
-  set wing-flap-direction new-wing-flap-direction
-end
-
 ; Copyright 1998 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 250
 10
-684
-445
+755
+516
 -1
 -1
-6.0
+7.0
 1
 10
 1
@@ -258,7 +248,7 @@ CHOOSER
 formation
 formation
 "random" "circular" "line"
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -380,7 +370,7 @@ true
 0
 Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
 
-bird side
+bird-left
 false
 0
 Polygon -7500403 true true 0 120 45 90 75 90 105 120 150 120 240 135 285 120 285 135 300 150 240 150 195 165 255 195 210 195 150 210 90 195 60 180 45 135
@@ -395,6 +385,12 @@ bird-left-up
 false
 0
 Polygon -7500403 true true 4 2 4 33 270 298 298 298 298 272 184 155 289 117 295 61 105 61 43 0
+
+bird-right
+false
+0
+Polygon -7500403 true true 300 120 255 90 225 90 195 120 150 120 60 135 15 120 15 135 0 150 60 150 105 165 45 195 90 195 150 210 210 195 240 180 255 135
+Circle -16777216 true false 248 98 14
 
 bird-right-down
 false
