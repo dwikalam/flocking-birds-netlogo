@@ -135,8 +135,8 @@ to set-new-wing-flap-direction ;; turtle procedure
   let new-wing-flap-direction wing-flap-direction
 
   ifelse (is-string? wing-flap-direction)
-    [ set new-wing-flap-direction ifelse-value ((random 2) = 1) ["down"] ["up"] ]
     [ set new-wing-flap-direction ifelse-value (wing-flap-direction = "up") ["down"] ["up"] ]
+    [ set new-wing-flap-direction ifelse-value ((random 2) = 1) ["down"] ["up"] ]
 
   set wing-flap-direction new-wing-flap-direction
 end
