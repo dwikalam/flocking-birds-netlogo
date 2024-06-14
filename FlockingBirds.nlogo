@@ -268,7 +268,7 @@ CHOOSER
 formation
 formation
 "random" "circular" "worm"
-1
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
