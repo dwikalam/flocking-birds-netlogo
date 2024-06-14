@@ -7,7 +7,7 @@ globals [
 ]
 
 turtles-own [
-  turn-direction       ;; left or right
+  wing-flap-direction
   flockmates           ;; agentset of nearby turtles
   nearest-neighbor     ;; closest one of our flockmates
 ]
@@ -17,8 +17,8 @@ to setup
   create-turtles total-birds
     [ set color yellow - 2 + random 7  ;; random shades look nice
       set size 1.5  ;; easier to see
-      set-random-shape
       setxy random-xcor random-ycor
+      set-shape
       set flockmates no-turtles ]
   reset-ticks
 end
@@ -27,7 +27,7 @@ to go
   apply-formation
   ask turtles
     [ flock
-      set-turn-shape ]
+      set-shape ]
   ;; the following line is used to make the turtles
   ;; animate more smoothly.
   repeat 5 [ ask turtles [ fd 0.1 ] display ]
@@ -38,11 +38,17 @@ to go
 end
 
 to apply-formation
-  ifelse formation = "line"
-    [ set-globals-line ]
-    [ ifelse formation = "circular"
-      [ set-globals-circular ]
-      [ set-globals-random ] ]
+  (ifelse
+    formation = "random" [
+      set-globals-random
+    ]
+    formation = "line" [
+      set-globals-line
+    ]
+    [
+      set-globals-circular
+    ]
+  )
 end
 
 to flock  ;; turtle procedure
@@ -105,17 +111,34 @@ end
 
 ;;; SHAPE
 
-to set-random-shape   ;; turtle procedure
-  ifelse (random 2) = 1
-    [ set shape "bird-left" ]
-    [ set shape "bird-right" ]
+;; set the shape of referenced bird
+to set-shape   ;; turtle procedure
+  set-new-wing-flap-direction
+
+  (ifelse
+    heading >= 0 and heading < 90 [
+      set shape ifelse-value (wing-flap-direction = "up") ["bird-ne-up"] ["bird-ne-down"]
+    ]
+    heading >= 90 and heading < 180 [
+      set shape ifelse-value (wing-flap-direction = "up") ["bird-se-up"] ["bird-se-down"]
+    ]
+    heading >= 180 and heading < 270 [
+      set shape ifelse-value (wing-flap-direction = "up") ["bird-sw-up"] ["bird-sw-down"]
+    ]
+    [
+      set shape ifelse-value (wing-flap-direction = "up") ["bird-nw-up"] ["bird-nw-down"]
+    ]
+  )
 end
 
-;; set the shape of referenced bird
-to set-turn-shape   ;; turtle procedure
-  ifelse turn-direction = "left"
-    [ set shape "bird-left" ]
-    [ set shape "bird-right" ]
+to set-new-wing-flap-direction ;; turtle procedure
+  let new-wing-flap-direction wing-flap-direction
+
+  ifelse (is-string? wing-flap-direction)
+    [ set new-wing-flap-direction ifelse-value ((random 2) = 1) ["down"] ["up"] ]
+    [ set new-wing-flap-direction ifelse-value (wing-flap-direction = "up") ["down"] ["up"] ]
+
+  set wing-flap-direction new-wing-flap-direction
 end
 
 ;;; HELPER PROCEDURES
@@ -133,12 +156,9 @@ end
 to turn-at-most [turn max-turn]  ;; turtle procedure
   ifelse abs turn > max-turn
     [ ifelse turn > 0
-        [ rt max-turn
-          set turn-direction "right" ]
-        [ lt max-turn
-          set turn-direction "left" ] ]
-    [ rt turn
-      set turn-direction "right" ]
+        [ rt max-turn ]
+        [ lt max-turn ] ]
+    [ rt turn ]
 end
 
 to set-globals [vision-val minimum-separation-val max-align-turn-val max-cohere-turn-val max-separate-turn-val]
@@ -376,12 +396,22 @@ false
 Polygon -7500403 true true 0 120 45 90 75 90 105 120 150 120 240 135 285 120 285 135 300 150 240 150 195 165 255 195 210 195 150 210 90 195 60 180 45 135
 Circle -16777216 true false 38 98 14
 
-bird-left-down
+bird-ne-down
+false
+0
+Polygon -7500403 true true 298 4 267 4 2 270 2 298 28 298 145 184 183 289 239 295 239 105 300 43
+
+bird-ne-up
+false
+0
+Polygon -7500403 true true 296 2 296 33 30 298 2 298 2 272 116 155 11 117 5 61 195 61 257 0
+
+bird-nw-down
 false
 0
 Polygon -7500403 true true 2 4 33 4 298 270 298 298 272 298 155 184 117 289 61 295 61 105 0 43
 
-bird-left-up
+bird-nw-up
 false
 0
 Polygon -7500403 true true 4 2 4 33 270 298 298 298 298 272 184 155 289 117 295 61 105 61 43 0
@@ -392,15 +422,25 @@ false
 Polygon -7500403 true true 300 120 255 90 225 90 195 120 150 120 60 135 15 120 15 135 0 150 60 150 105 165 45 195 90 195 150 210 210 195 240 180 255 135
 Circle -16777216 true false 248 98 14
 
-bird-right-down
+bird-se-down
 false
 0
-Polygon -7500403 true true 298 4 267 4 2 270 2 298 28 298 145 184 183 289 239 295 239 105 300 43
+Polygon -7500403 true true 296 298 296 267 30 2 2 2 2 28 116 145 11 183 5 239 195 239 257 300
 
-bird-right-up
+bird-se-up
 false
 0
-Polygon -7500403 true true 296 2 296 33 30 298 2 298 2 272 116 155 11 117 5 61 195 61 257 0
+Polygon -7500403 true true 298 296 267 296 2 30 2 2 28 2 145 116 183 11 239 5 239 195 300 257
+
+bird-sw-down
+false
+0
+Polygon -7500403 true true 4 298 4 267 270 2 298 2 298 28 184 145 289 183 295 239 105 239 43 300
+
+bird-sw-up
+false
+0
+Polygon -7500403 true true 2 296 33 296 298 30 298 2 272 2 155 116 117 11 61 5 61 195 0 257
 
 box
 false
