@@ -42,8 +42,8 @@ to apply-formation
     formation = "random" [
       set-globals-random
     ]
-    formation = "line" [
-      set-globals-line
+    formation = "worm" [
+      set-globals-worm
     ]
     [
       set-globals-circular
@@ -169,8 +169,8 @@ to set-globals [vision-val minimum-separation-val max-align-turn-val max-cohere-
   set max-separate-turn max-separate-turn-val
 end
 
-to set-globals-line
-  set-globals 20 0 20 20 20
+to set-globals-worm
+  set-globals 20 0 360 5 0
 end
 
 to set-globals-circular
@@ -267,8 +267,8 @@ CHOOSER
 103
 formation
 formation
-"random" "circular" "line"
-0
+"random" "circular" "worm"
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
